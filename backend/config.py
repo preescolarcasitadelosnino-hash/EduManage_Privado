@@ -42,8 +42,9 @@ GOOGLE_DESKTOP_CLIENT = BASE_DIR / "oauth" / "client_desktop.json"
 
 GOOGLE_TOKEN = BASE_DIR / "oauth" / "token.json"
 
-# Carpeta raíz de EduManager (Lee desde Secrets o usa valor por defecto)
-GOOGLE_DRIVE_ROOT = obtener_configuracion("GOOGLE_DRIVE_ROOT", "1hdsxqBjPMDJOw56VKmj1EslLSoM2AiDi")
+# Carpeta raíz privada de Drive. Debe configurarse en Secrets/variables de entorno.
+# No se usa una carpeta pública predeterminada para evitar mezclar proyectos.
+GOOGLE_DRIVE_ROOT = obtener_configuracion("GOOGLE_DRIVE_ROOT", "")
 
 # ==========================================
 # CONFIGURACIÓN DE LA INSTITUCIÓN

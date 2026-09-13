@@ -190,14 +190,22 @@ class DriveManager:
             if os.path.exists(ruta_temporal):
                 os.remove(ruta_temporal)
 
-    def obtener_carpeta_institucion(self):
-        return self.crear_carpeta("INSTITUCION")
+    def obtener_carpeta_institucion(self, nombre_institucion):
+        self.probar_conexion()
+        carpeta_institucion = self.crear_carpeta("INSTITUCION")
+        nombre = str(nombre_institucion or "INSTITUCION").strip()
+        return self.crear_carpeta(nombre, carpeta_institucion)
 
     def buscar_carpeta(self, nombre_carpeta, carpeta_padre=None):
         service = self._require_service()
         padre = carpeta_padre or self.root_folder
+        nombre_consulta = (
+            str(nombre_carpeta)
+            .replace("\\", "\\\\")
+            .replace("'", "\\'")
+        )
         consulta = (
-            f"name='{nombre_carpeta}' "
+            f"name='{nombre_consulta}' "
             "and mimeType='application/vnd.google-apps.folder' "
             f"and '{padre}' in parents "
             "and trashed=false"

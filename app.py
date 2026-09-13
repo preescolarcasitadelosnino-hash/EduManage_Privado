@@ -1341,7 +1341,9 @@ elif opcion == "⚙️ Configuración":
                 try:
                     if archivo_logo is not None or archivo_escudo is not None:
                         drive = DriveManager()
-                        carpeta_institucion = drive.obtener_carpeta_institucion()
+                        carpeta_institucion = drive.obtener_carpeta_institucion(
+                            cfg_nombre.strip()
+                        )
                         if archivo_logo is not None:
                             ext_logo = archivo_logo.name.split(".")[-1].lower()
                             cfg_logo_url = drive.subir_archivo_streamlit(
