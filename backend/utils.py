@@ -82,9 +82,18 @@ def obtener_url_o_ruta_imagen(url_foto):
     
     str_val = str(url_foto).strip()
     
-    # 1. Validar si es una ruta local real en disco
-    if os.path.exists(str_val):
-        return str_val
+    # 1. Validar rutas locales, incluyendo las antiguas guardadas sin el
+    # prefijo "assets/" (por ejemplo: instituciones/INST-DICA/escudo.png).
+    rutas_locales = [str_val]
+    ruta_sin_assets = str_val.replace("\\", "/").lstrip("/")
+    if ruta_sin_assets.startswith("assets/"):
+        rutas_locales.append(ruta_sin_assets)
+    else:
+        rutas_locales.append(os.path.join("assets", ruta_sin_assets))
+
+    for ruta_local in rutas_locales:
+        if os.path.exists(ruta_local):
+            return ruta_local
         
     # 2. Validar si es una URL web completa (http/https)
     if str_val.startswith("http://") or str_val.startswith("https://"):
