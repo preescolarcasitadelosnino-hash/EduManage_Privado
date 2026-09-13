@@ -21,6 +21,7 @@ from backend.estudiantes import (
 )
 from backend.drive_manager import DriveManager
 from backend.utils import obtener_url_o_ruta_imagen
+from backend.config import ID_INSTITUCION
 
 from backend.institucion_db import(
         web_obtener_institucion,
@@ -148,12 +149,20 @@ os.environ["LANG"] = "C.UTF-8"
 
 if st.session_state.usuario is None:
 
+    _login_inst = web_obtener_institucion(ID_INSTITUCION) or {}
+    _login_image = (
+        _login_inst.get("escudo_url")
+        or _login_inst.get("logo_url")
+    )
+    _login_image = obtener_url_o_ruta_imagen(_login_image)
+    _login_title = _login_inst.get("nombre_institucion") or "EduManager"
+
     with st.container(border=True):
         col_marca, col_nombre = st.columns([1, 3])
         with col_marca:
-            st.image("assets/edumanager_icon.svg", width=112)
+            st.image(_login_image or "assets/edumanager_icon.svg", width=112)
         with col_nombre:
-            st.markdown("### EduManager")
+            st.markdown(f"### {_login_title}")
             st.caption("Gestión educativa institucional")
 
     # Un formulario nativo garantiza que Enter y el clic envíen los valores
@@ -1174,15 +1183,21 @@ elif opcion == "Inicio":
         _logo_p = _i.get("logo_url", "")
 
 # Estas líneas VAN FUERA del if
-    _logo_full2 = os.path.join("assets", _logo_p) if _logo_p else ""
+    _logo_full2 = obtener_url_o_ruta_imagen(_logo_p)
     _ano = _date.today().year
 
     # Logo → base64
     _logo_b64 = ""
 
-    if _logo_full2 and os.path.exists(_logo_full2):
+    if _logo_full2 and _logo_full2.startswith(("http://", "https://")):
+        _logo_b64 = ""
+        _logo_src = _logo_full2
+    elif _logo_full2 and os.path.exists(_logo_full2):
         with open(_logo_full2, "rb") as _lf:
             _logo_b64 = _b64.b64encode(_lf.read()).decode()
+        _logo_src = f"data:image/png;base64,{_logo_b64}"
+    else:
+        _logo_src = ""
 
     _ubicacion = ", ".join(p for p in [_municipio, _depto] if p)
 
@@ -1194,7 +1209,7 @@ elif opcion == "Inicio":
     <h1>{_nom}</h1>
 
     <img
-    src="data:image/png;base64,{_logo_b64}"
+    src="{_logo_src}"
     width="180">
 
     <p>{_municipio}</p>
@@ -1299,7 +1314,7 @@ elif opcion == "⚙️ Configuración":
         cfg_logo_url = logo_actual
         if archivo_logo is not None:
             ext = archivo_logo.name.split(".")[-1].lower()
-            cfg_logo_url = f"logo_INST-DICA.{ext}"
+            cfg_logo_url = f"logo_institucion.{ext}"
 
     # ── Escudo / imagen secundaria ─────────────────────────────────────────────
     with col_img2:
@@ -1316,7 +1331,7 @@ elif opcion == "⚙️ Configuración":
         cfg_escudo_url = escudo_actual
         if archivo_escudo is not None:
             ext2 = archivo_escudo.name.split(".")[-1].lower()
-            cfg_escudo_url = f"escudo_INST-DICA.{ext2}"
+            cfg_escudo_url = f"escudo_institucion.{ext2}"
 
     st.write("---")
     st.markdown("### 💬 Eslogan institucional")
@@ -1365,7 +1380,7 @@ elif opcion == "⚙️ Configuración":
                     st.stop()
 
                 ok, msg = web_actualizar_institucion(
-                    "INST-DICA",
+                    ID_INSTITUCION,
                     cfg_nombre.strip(), cfg_nit.strip(), cfg_res.strip(),
                     cfg_dir.strip(), cfg_tel.strip(),
                     cfg_mpio.strip(), cfg_depto.strip(),
