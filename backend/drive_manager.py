@@ -1,3 +1,5 @@
+import base64
+import binascii
 import json
 import os
 from pathlib import Path
@@ -38,18 +40,32 @@ class DriveManager:
         creds = None
 
         service_account_json = st.secrets.get("GOOGLE_SERVICE_ACCOUNT_JSON")
-        if service_account_json:
+        service_account_json_b64 = st.secrets.get("GOOGLE_SERVICE_ACCOUNT_JSON_B64")
+        if service_account_json or service_account_json_b64:
             try:
-                service_account_info = (
-                    json.loads(service_account_json)
-                    if isinstance(service_account_json, str)
-                    else dict(service_account_json)
-                )
+                if service_account_json_b64:
+                    decoded_json = base64.b64decode(
+                        str(service_account_json_b64),
+                        validate=True,
+                    ).decode("utf-8")
+                    service_account_info = json.loads(decoded_json)
+                else:
+                    service_account_info = (
+                        json.loads(service_account_json)
+                        if isinstance(service_account_json, str)
+                        else dict(service_account_json)
+                    )
                 creds = service_account.Credentials.from_service_account_info(
                     service_account_info,
                     scopes=SCOPES,
                 )
-            except (TypeError, ValueError, json.JSONDecodeError):
+            except (
+                TypeError,
+                ValueError,
+                UnicodeDecodeError,
+                binascii.Error,
+                json.JSONDecodeError,
+            ):
                 creds = None
 
         token_json = st.secrets.get("GOOGLE_TOKEN_JSON")
