@@ -13,7 +13,6 @@ from googleapiclient.http import MediaFileUpload
 from backend.config import (
     GOOGLE_DESKTOP_CLIENT,
     GOOGLE_TOKEN,
-    GOOGLE_DRIVE_ROOT,
 )
 
 
@@ -25,7 +24,7 @@ class DriveManager:
 
     def __init__(self):
         self.service = None
-        self.root_folder = GOOGLE_DRIVE_ROOT
+        self.root_folder = st.secrets.get("GOOGLE_DRIVE_ROOT", "")
         self.autenticar()
 
     def autenticar(self):

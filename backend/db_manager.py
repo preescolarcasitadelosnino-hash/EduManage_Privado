@@ -3,7 +3,6 @@ import psycopg2
 from psycopg2 import errors, pool as psycopg2_pool
 import streamlit as st
 import bcrypt
-from backend.config import obtener_configuracion
 
 # ==========================================
 # 🔌 CONEXIÓN A POSTGRESQL
@@ -64,32 +63,20 @@ class _ConexionDelPool:
 @st.cache_resource(show_spinner=False)
 def obtener_pool_conexiones():
     """Crea un pool por proceso de Streamlit y lo reutiliza entre reruns."""
-    database_url = obtener_configuracion("DATABASE_URL")
-    if database_url:
-        minconn = int(obtener_configuracion("DB_POOL_MINCONN", 1))
-        maxconn = int(obtener_configuracion("DB_POOL_MAXCONN", 5))
-        if minconn < 1 or maxconn < minconn:
-            raise ValueError("DB_POOL_MINCONN/DB_POOL_MAXCONN tienen valores inválidos")
-        return psycopg2_pool.ThreadedConnectionPool(
-            minconn,
-            maxconn,
-            database_url,
-        )
-
-    minconn = int(obtener_configuracion("DB_POOL_MINCONN", 1))
-    maxconn = int(obtener_configuracion("DB_POOL_MAXCONN", 5))
+    minconn = int(st.secrets.get("DB_POOL_MINCONN", 1))
+    maxconn = int(st.secrets.get("DB_POOL_MAXCONN", 5))
     if minconn < 1 or maxconn < minconn:
         raise ValueError("DB_POOL_MINCONN/DB_POOL_MAXCONN tienen valores inválidos")
 
     return psycopg2_pool.ThreadedConnectionPool(
         minconn=minconn,
         maxconn=maxconn,
-        host=obtener_configuracion("DB_HOST"),
-        dbname=obtener_configuracion("DB_NAME"),
-        user=obtener_configuracion("DB_USER"),
-        password=obtener_configuracion("DB_PASSWORD"),
-        port=obtener_configuracion("DB_PORT", "5432"),
-        sslmode=obtener_configuracion("DB_SSLMODE", "require"),
+        host=st.secrets["DB_HOST"],
+        dbname=st.secrets["DB_NAME"],
+        user=st.secrets["DB_USER"],
+        password=st.secrets["DB_PASSWORD"],
+        port=st.secrets.get("DB_PORT", "5432"),
+        sslmode=st.secrets.get("DB_SSLMODE", "require"),
     )
 
 

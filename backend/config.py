@@ -24,9 +24,6 @@ GOOGLE_TOKEN = BASE_DIR / "oauth" / "token.json"
 
 
 
-# Carpeta raíz de EduManager
-GOOGLE_DRIVE_ROOT = "1jBJNCI1YS3RNuPdc45n4HfpnPoUF77C1"
-
 # ==========================================
 # CONFIGURACIÓN DE LA INSTITUCIÓN
 # ==========================================
