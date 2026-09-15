@@ -6,6 +6,7 @@ from tempfile import NamedTemporaryFile
 import streamlit as st
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+from google.oauth2 import service_account
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
@@ -36,8 +37,23 @@ class DriveManager:
         """
         creds = None
 
+        service_account_json = st.secrets.get("GOOGLE_SERVICE_ACCOUNT_JSON")
+        if service_account_json:
+            try:
+                service_account_info = (
+                    json.loads(service_account_json)
+                    if isinstance(service_account_json, str)
+                    else dict(service_account_json)
+                )
+                creds = service_account.Credentials.from_service_account_info(
+                    service_account_info,
+                    scopes=SCOPES,
+                )
+            except (TypeError, ValueError, json.JSONDecodeError):
+                creds = None
+
         token_json = st.secrets.get("GOOGLE_TOKEN_JSON")
-        if token_json:
+        if creds is None and token_json:
             try:
                 token_info = json.loads(token_json)
                 creds = Credentials.from_authorized_user_info(token_info, SCOPES)
