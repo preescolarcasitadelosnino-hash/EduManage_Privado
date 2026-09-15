@@ -91,6 +91,13 @@ class DriveManager:
             except Exception:
                 creds = None
 
+        # Las credenciales de cuenta de servicio obtienen su token al realizar
+        # la primera solicitud; no deben rechazarse por estar inicialmente
+        # marcadas como no válidas.
+        if isinstance(creds, service_account.Credentials):
+            self.service = build("drive", "v3", credentials=creds)
+            return True
+
         if not creds or not creds.valid:
             permitir_oauth_local = st.secrets.get("GOOGLE_ALLOW_LOCAL_OAUTH", True)
             if permitir_oauth_local and Path(GOOGLE_DESKTOP_CLIENT).exists():
