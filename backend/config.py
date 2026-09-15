@@ -3,26 +3,6 @@
 # ==========================================
 
 from pathlib import Path
-import os
-import streamlit as st
-
-
-def obtener_configuracion(nombre, predeterminado=None):
-    """Lee configuración desde Streamlit Secrets o variables de entorno."""
-    try:
-        if nombre in st.secrets:
-            valor = st.secrets[nombre]
-            if valor not in (None, ""):
-                return valor
-    except Exception:
-        pass
-    return os.getenv(nombre, predeterminado)
-
-# ==========================================
-# BASE DE DATOS (SUPABASE / POSTGRESQL)
-# ==========================================
-
-DATABASE_URL = obtener_configuracion("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/edumanager")
 
 # ==========================================
 # RUTAS DEL PROYECTO
@@ -42,9 +22,10 @@ GOOGLE_DESKTOP_CLIENT = BASE_DIR / "oauth" / "client_desktop.json"
 
 GOOGLE_TOKEN = BASE_DIR / "oauth" / "token.json"
 
-# Carpeta raíz privada de Drive. Debe configurarse en Secrets/variables de entorno.
-# No se usa una carpeta pública predeterminada para evitar mezclar proyectos.
-GOOGLE_DRIVE_ROOT = obtener_configuracion("GOOGLE_DRIVE_ROOT", "")
+
+
+# Carpeta raíz de EduManager
+GOOGLE_DRIVE_ROOT = "1jBJNCI1YS3RNuPdc45n4HfpnPoUF77C1"
 
 # ==========================================
 # CONFIGURACIÓN DE LA INSTITUCIÓN
